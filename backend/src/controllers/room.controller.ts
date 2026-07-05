@@ -165,8 +165,12 @@ export async function handleJoinRoom(req: Request, res: Response): Promise<void>
 // ─── Get Room ─────────────────────────────────────────────────────────────────
 
 export async function handleGetRoom(req: Request, res: Response): Promise<void> {
-  const { id } = req.params;
-  const code = id.toUpperCase();
+  const id = req.params.id;
+  if (!id) {
+    res.status(400).json({ success: false, error: 'Missing room id' });
+    return;
+  }
+  const code = Array.isArray(id) ? id[0].toUpperCase() : id.toUpperCase();
 
   if (isDBConnected()) {
     try {

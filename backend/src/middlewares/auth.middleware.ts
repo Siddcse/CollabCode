@@ -25,7 +25,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   }
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as AuthPayload;
+    const payload = jwt.verify(token, env.JWT_SECRET as jwt.Secret) as AuthPayload;
     req.user = payload;
     next();
   } catch {
@@ -37,12 +37,16 @@ export function optionalAuth(req: Request, _res: Response, next: NextFunction): 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (token) {
     try {
-      req.user = jwt.verify(token, env.JWT_SECRET) as AuthPayload;
+      req.user = jwt.verify(token, env.JWT_SECRET as jwt.Secret) as AuthPayload;
     } catch {}
   }
   next();
 }
 
 export function signToken(payload: AuthPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
+  const secret = env.JWT_SECRET as jwt.Secret;
+  const options: jwt.SignOptions = {
+    expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+  };
+  return jwt.sign(payload as jwt.JwtPayload, secret, options);
 }
