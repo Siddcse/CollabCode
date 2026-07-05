@@ -130,11 +130,7 @@ collabcode/
 - Docker Desktop (for code execution + local services)
 - Git
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/yourusername/collabcode.git
-cd collabcode
-```
+### 1. About this project
 
 ### 2. Set up environment variables
 ```bash
