@@ -1,21 +1,8 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '../providers/QueryProvider';
 
 // next/font/google self-hosts these — no external @import needed
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains',
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
   title: 'CollabCode — Real-Time Collaborative Code Editor',
   description:
@@ -34,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        className="antialiased"
         style={{ background: '#0F172A', color: '#F9FAFB' }}
       >
         <QueryProvider>

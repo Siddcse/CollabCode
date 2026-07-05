@@ -266,8 +266,8 @@ export default function LandingPage() {
                 <pre style={{ margin: 0, fontFamily: 'JetBrains Mono, Consolas, monospace', fontSize: 13, lineHeight: '24px', color: '#E2E8F0', whiteSpace: 'pre' }}>
                   {CODE_DEMO.split('\n').map((line, i) => (
                     <div key={i} style={{ position: 'relative' }}>
-                      {i === 8 && <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 4, padding: '1px 8px', fontSize: 11, color: '#A78BFA', whiteSpace: 'nowrap', marginLeft: -4, zIndex: 1, left: 'calc(100% - 60px)' }}>Alice</span>}
-                      {i === 9 && <span style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', borderRadius: 4, padding: '1px 8px', fontSize: 11, color: '#93C5FD', whiteSpace: 'nowrap', marginLeft: -4, zIndex: 1, left: 'calc(100% - 50px)' }}>Bob</span>}
+                      {i === 8 && <span style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 4, padding: '1px 8px', fontSize: 11, color: '#A78BFA', whiteSpace: 'nowrap', marginLeft: -4, zIndex: 1, left: 'calc(100% - 60px)' }}>Alice</span>}
+                      {i === 9 && <span style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', borderRadius: 4, padding: '1px 8px', fontSize: 11, color: '#93C5FD', whiteSpace: 'nowrap', marginLeft: -4, zIndex: 1, left: 'calc(100% - 50px)' }}>Bob</span>}
                       <span style={{ color: highlightPython(line, i) }}>{line || ' '}</span>
                     </div>
                   ))}

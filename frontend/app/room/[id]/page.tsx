@@ -972,7 +972,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                     { key: 'problems', icon: AlertCircle, label: 'Problems', badge: result?.exitCode !== 0 && result ? 1 : 0 },
                   ] as const).map(tab => (
                     <button key={tab.key} onClick={() => setConsoleTab(tab.key)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 14px', height: '100%', background: 'none', border: 'none', borderBottom: consoleTab === tab.key ? `1px solid ${VS.accent}` : '1px solid transparent', borderTop: '1px solid transparent', cursor: 'pointer', color: consoleTab === tab.key ? VS.textActive : VS.textMuted, fontSize: 12, fontWeight: consoleTab === tab.key ? 600 : 400, gap: 6 }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '0 14px', height: '100%', background: 'none', border: 'none', borderBottom: consoleTab === tab.key ? `1px solid ${VS.accent}` : '1px solid transparent', borderTop: '1px solid transparent', cursor: 'pointer', color: consoleTab === tab.key ? VS.textActive : VS.textMuted, fontSize: 12, fontWeight: consoleTab === tab.key ? 600 : 400, gap: 6 }}
                       onMouseEnter={e => { if (consoleTab !== tab.key) e.currentTarget.style.color = VS.textPrimary; }}
                       onMouseLeave={e => { if (consoleTab !== tab.key) e.currentTarget.style.color = VS.textMuted; }}>
                       <tab.icon style={{ width: 12, height: 12 }} />
