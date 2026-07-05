@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  # ── MongoDB ────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: collabcode-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: collabcode
+    networks:
+      - collabcode-net
+
+  # ── Redis ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: collabcode-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - collabcode-net
+
+  # ── Backend ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: collabcode-backend
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/collabcode
+      - REDIS_URL=redis://redis:6379
+      - DOCKER_SOCKET_PATH=/var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - collabcode-net
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  collabcode-net:
+    driver: bridge
