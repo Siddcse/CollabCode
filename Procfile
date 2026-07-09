@@ -1,1 +1,1 @@
-web: npm install && npm run build && npm start --workspace=backend
+web: npm ci && npm run build && node backend/dist/index.js
