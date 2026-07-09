@@ -14,7 +14,8 @@
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build:frontend": "npm run build --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
-    "build": "npm run build:backend && npm run build:frontend",
+    "build": "npm run build:backend",
+    "start": "npm start --workspace=backend",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
