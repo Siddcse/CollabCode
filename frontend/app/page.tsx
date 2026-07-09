@@ -114,7 +114,7 @@ export default function LandingPage() {
             <div style={{ width: 34, height: 34, borderRadius: 9, background: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
               <Code2 style={{ width: 18, height: 18, color: '#fff' }} />
             </div>
-            <span style={{ fontWeight: 800, fontSize: 18, color: C.text, letterSpacing: '-0.3px' }}>CollabCode</span>
+            <span style={{ fontWeight: 800, fontSize: 30, color: C.text, letterSpacing: '-0.3px' }}>CollabCode</span>
           </Link>
 
           {/* Nav links */}
