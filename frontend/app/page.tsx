@@ -9,18 +9,18 @@ import {
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const C = {
-  bg: '#07090F',
-  bgSection: '#0B0D1A',
-  surface: 'rgba(255,255,255,0.04)',
-  surfaceHover: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.08)',
-  primary: '#7C3AED',
-  primaryGlow: 'rgba(124,58,237,0.35)',
-  text: '#F1F5F9',
-  textSub: '#94A3B8',
-  textMuted: '#475569',
-  green: '#22C55E',
-  card: 'rgba(255,255,255,0.03)',
+  bg: '#FFFFFF',
+  bgSection: '#F7F8FA',
+  surface: 'rgba(0,0,0,0.03)',
+  surfaceHover: 'rgba(0,0,0,0.06)',
+  border: 'rgba(0,0,0,0.09)',
+  primary: '#1A73E8',
+  primaryGlow: 'rgba(26,115,232,0.18)',
+  text: '#111111',
+  textSub: '#5F6368',
+  textMuted: '#9AA0A6',
+  green: '#34A853',
+  card: 'rgba(0,0,0,0.02)',
 };
 
 const FEATURES = [
@@ -80,16 +80,16 @@ export default function LandingPage() {
   const btnPrimary = {
     display: 'inline-flex', alignItems: 'center', gap: 8,
     padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
-    background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+    background: '#111111',
     color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif',
-    boxShadow: '0 4px 20px rgba(124,58,237,0.4)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
     textDecoration: 'none', transition: 'all 0.2s ease',
   } as React.CSSProperties;
 
   const btnSecondary = {
     display: 'inline-flex', alignItems: 'center', gap: 8,
     padding: '12px 24px', borderRadius: 10, cursor: 'pointer',
-    background: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`,
+    background: 'rgba(0,0,0,0.04)', border: `1px solid ${C.border}`,
     color: C.text, fontWeight: 600, fontSize: 14, fontFamily: 'Inter, system-ui, sans-serif',
     textDecoration: 'none', transition: 'all 0.2s ease',
   } as React.CSSProperties;
@@ -101,7 +101,7 @@ export default function LandingPage() {
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         height: 64,
-        background: scrolled ? 'rgba(7,9,15,0.92)' : 'transparent',
+        background: scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
         borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
         transition: 'all 0.3s ease',
@@ -111,7 +111,7 @@ export default function LandingPage() {
 
           {/* Logo */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(124,58,237,0.4)' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
               <Code2 style={{ width: 18, height: 18, color: '#fff' }} />
             </div>
             <span style={{ fontWeight: 800, fontSize: 18, color: C.text, letterSpacing: '-0.3px' }}>CollabCode</span>
@@ -147,18 +147,18 @@ export default function LandingPage() {
 
         {/* Background glows */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: 900, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-          <div style={{ position: 'absolute', top: '30%', left: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-          <div style={{ position: 'absolute', top: '20%', right: '5%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+          <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: 900, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(26,115,232,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+          <div style={{ position: 'absolute', top: '30%', left: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(52,168,83,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+          <div style={{ position: 'absolute', top: '20%', right: '5%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,115,232,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }} />
           {/* Grid */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.015, backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.015, backgroundImage: 'linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
 
           {/* Top badge */}
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 100, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', fontSize: 13, color: '#A78BFA', marginBottom: 36 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 100, background: 'rgba(26,115,232,0.08)', border: '1px solid rgba(26,115,232,0.2)', fontSize: 13, color: '#1A73E8', marginBottom: 36 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.green, display: 'inline-block', animation: 'pulse 2s infinite' }} />
               Real-time collaboration · Zero latency · Enterprise ready
             </div>
@@ -166,7 +166,7 @@ export default function LandingPage() {
             {/* Headline */}
             <h1 style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-2px', margin: '0 0 24px', color: C.text }}>
               Code Together,{' '}
-              <span style={{ background: 'linear-gradient(135deg, #A78BFA, #7C3AED, #6366F1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(90deg, #1A73E8, #34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 In Real Time
               </span>
             </h1>
@@ -184,7 +184,7 @@ export default function LandingPage() {
               </Link>
 
               {/* Join form */}
-              <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.04)' }}>
+              <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}`, background: 'rgba(0,0,0,0.03)' }}>
                 <input
                   type="text"
                   value={joinCode}
@@ -195,7 +195,7 @@ export default function LandingPage() {
                 />
                 <Link
                   href={joinCode.length === 9 ? `/auth?mode=join&code=${joinCode}` : '/auth?mode=join'}
-                  style={{ padding: '14px 20px', background: 'rgba(124,58,237,0.2)', color: '#A78BFA', fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'flex', alignItems: 'center', borderLeft: `1px solid ${C.border}`, whiteSpace: 'nowrap', cursor: 'pointer' }}
+                  style={{ padding: '14px 20px', background: 'rgba(26,115,232,0.1)', color: '#1A73E8', fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'flex', alignItems: 'center', borderLeft: `1px solid ${C.border}`, whiteSpace: 'nowrap', cursor: 'pointer' }}
                 >
                   Join →
                 </Link>
@@ -294,12 +294,12 @@ export default function LandingPage() {
       <section id="features" style={{ padding: '100px 24px', background: C.bgSection }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 100, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', fontSize: 12, color: '#A78BFA', marginBottom: 20, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 100, background: 'rgba(26,115,232,0.08)', border: '1px solid rgba(26,115,232,0.18)', fontSize: 12, color: '#1A73E8', marginBottom: 20, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               <Sparkles style={{ width: 12, height: 12 }} /> Features
             </div>
             <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-1px', margin: '0 0 16px', color: C.text }}>
               Everything you need to{' '}
-              <span style={{ background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(90deg, #1A73E8, #34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 code together
               </span>
             </h2>
@@ -340,14 +340,14 @@ export default function LandingPage() {
             {LANGS.map(lang => (
               <span key={lang} style={{
                 padding: '10px 20px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(0,0,0,0.03)',
                 border: `1px solid ${C.border}`,
                 fontSize: 14, fontWeight: 600, color: C.textSub,
                 fontFamily: 'JetBrains Mono, monospace',
                 transition: 'all 0.2s ease', cursor: 'default',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.text; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(124,58,237,0.4)'; (e.currentTarget as HTMLElement).style.background = 'rgba(124,58,237,0.08)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.textSub; (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.text; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(26,115,232,0.4)'; (e.currentTarget as HTMLElement).style.background = 'rgba(26,115,232,0.06)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.textSub; (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.03)'; }}
               >
                 {lang}
               </span>
@@ -360,12 +360,12 @@ export default function LandingPage() {
       <section id="pricing" style={{ padding: '100px 24px', background: C.bgSection }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 100, background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', fontSize: 12, color: '#A78BFA', marginBottom: 20, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 100, background: 'rgba(26,115,232,0.08)', border: '1px solid rgba(26,115,232,0.18)', fontSize: 12, color: '#1A73E8', marginBottom: 20, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               <Star style={{ width: 12, height: 12 }} /> Pricing
             </div>
             <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-1px', margin: '0 0 16px', color: C.text }}>
               Simple{' '}
-              <span style={{ background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Pricing</span>
+              <span style={{ background: 'linear-gradient(90deg, #1A73E8, #34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Pricing</span>
             </h2>
             <p style={{ fontSize: 17, color: C.textSub, margin: 0 }}>Start free. Scale as you grow.</p>
           </div>
@@ -374,14 +374,14 @@ export default function LandingPage() {
             {PRICING.map((plan) => (
               <div key={plan.name} style={{
                 padding: 32, borderRadius: 20,
-                background: plan.highlighted ? 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(99,102,241,0.08))' : C.card,
-                border: `1px solid ${plan.highlighted ? 'rgba(124,58,237,0.4)' : C.border}`,
+                background: plan.highlighted ? '#111111' : '#F8F9FA',
+                border: `1px solid ${plan.highlighted ? '#111111' : C.border}`,
                 position: 'relative',
-                boxShadow: plan.highlighted ? '0 0 40px rgba(124,58,237,0.12)' : 'none',
+                boxShadow: plan.highlighted ? '0 8px 32px rgba(0,0,0,0.15)' : 'none',
                 display: 'flex', flexDirection: 'column',
               }}>
                 {plan.badge && (
-                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', padding: '4px 16px', borderRadius: 20, background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(124,58,237,0.4)' }}>
+                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', padding: '4px 16px', borderRadius: 20, background: '#1A73E8', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(26,115,232,0.3)' }}>
                     {plan.badge}
                   </div>
                 )}
@@ -397,10 +397,10 @@ export default function LandingPage() {
                 <div style={{ flex: 1, margin: '24px 0' }}>
                   {plan.features.map(f => (
                     <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: plan.highlighted ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Check style={{ width: 11, height: 11, color: plan.highlighted ? '#A78BFA' : C.green }} />
+                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: plan.highlighted ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Check style={{ width: 11, height: 11, color: plan.highlighted ? '#fff' : C.green }} />
                       </div>
-                      <span style={{ fontSize: 14, color: C.textSub }}>{f}</span>
+                      <span style={{ fontSize: 14, color: plan.highlighted ? 'rgba(255,255,255,0.85)' : C.textSub }}>{f}</span>
                     </div>
                   ))}
                 </div>
@@ -408,11 +408,11 @@ export default function LandingPage() {
                 <Link href={plan.ctaLink} style={{
                   display: 'block', textAlign: 'center',
                   padding: '13px 24px', borderRadius: 10, textDecoration: 'none',
-                  background: plan.highlighted ? 'linear-gradient(135deg,#7C3AED,#6D28D9)' : 'rgba(255,255,255,0.06)',
+                  background: plan.highlighted ? '#FFFFFF' : 'rgba(0,0,0,0.05)',
                   border: plan.highlighted ? 'none' : `1px solid ${C.border}`,
-                  color: plan.highlighted ? '#fff' : C.textSub,
+                  color: plan.highlighted ? '#111111' : C.textSub,
                   fontWeight: 700, fontSize: 14,
-                  boxShadow: plan.highlighted ? '0 4px 16px rgba(124,58,237,0.35)' : 'none',
+                  boxShadow: 'none',
                   transition: 'all 0.2s ease',
                 }}>
                   {plan.cta}
@@ -434,7 +434,7 @@ export default function LandingPage() {
           </div>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 900, letterSpacing: '-1.5px', color: C.text, margin: '0 0 16px' }}>
             Start coding together{' '}
-            <span style={{ background: 'linear-gradient(135deg, #A78BFA, #22C55E)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>right now</span>
+            <span style={{ background: 'linear-gradient(90deg, #1A73E8, #34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>right now</span>
           </h2>
           <p style={{ fontSize: 17, color: C.textSub, margin: '0 0 40px', lineHeight: 1.6 }}>
             No signup required. Create a room in seconds and share the code with your team.
@@ -451,7 +451,7 @@ export default function LandingPage() {
       <footer style={{ borderTop: `1px solid ${C.border}`, background: C.bg, padding: '32px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Code2 style={{ width: 14, height: 14, color: '#fff' }} />
             </div>
             <span style={{ fontWeight: 700, fontSize: 15, color: C.text }}>CollabCode</span>
@@ -475,8 +475,8 @@ export default function LandingPage() {
         html { scroll-behavior: smooth; }
         *::-webkit-scrollbar { width: 6px; }
         *::-webkit-scrollbar-track { background: transparent; }
-        *::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
-        input::placeholder { color: #475569; }
+        *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+        input::placeholder { color: #9AA0A6; }
       `}</style>
     </div>
   );
