@@ -10,7 +10,8 @@ import {
   ChevronRight, ChevronLeft, MoreHorizontal, LogOut, Code2,
   Search, GitBranch, PanelLeft, PanelBottom, PanelRight,
   Command, Maximize2, Minimize2, LayoutGrid, Zap, ArrowUp,
-  ChevronUp, AlignLeft, Coffee, Hash, Layers
+  ChevronUp, AlignLeft, Coffee, Hash, Layers,
+  RotateCcw, RotateCw, Edit2, FileText, Square, Keyboard
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRoomStore } from '@/store/roomStore';
@@ -207,6 +208,80 @@ function CommandPalette({ items, onClose }: { items: CmdItem[]; onClose: () => v
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// MENU BAR DROPDOWN
+// ═════════════════════════════════════════════════════════════════════════════
+interface MenuItem {
+  label: string;
+  shortcut?: string;
+  action?: () => void;
+  separator?: boolean;
+  disabled?: boolean;
+  icon?: any;
+}
+
+function MenuBarDropdown({
+  items,
+  onClose,
+  position = 'bottom-left',
+}: {
+  items: MenuItem[];
+  onClose: () => void;
+  position?: 'bottom-left' | 'bottom-right';
+}) {
+  const [selIdx, setSelIdx] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const clickableItems = items.filter(it => !it.separator && it.action);
+  useEffect(() => { setSelIdx(0); }, [items]);
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSelIdx(i => { let n = i + 1; while (n < items.length && items[n].separator) n++; return Math.min(n, items.length - 1); }); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); setSelIdx(i => { let n = i - 1; while (n >= 0 && items[n].separator) n--; return Math.max(n, 0); }); }
+    if (e.key === 'Enter') { const item = items[selIdx]; if (item?.action) { item.action(); onClose(); } }
+    if (e.key === 'Escape') { onClose(); }
+  }
+
+  return (
+    <div
+      ref={ref}
+      onKeyDown={handleKey}
+      style={{
+        position: 'absolute', top: '100%', left: position === 'bottom-right' ? 'auto' : 0,
+        right: position === 'bottom-right' ? 0 : 'auto',
+        minWidth: 220, background: '#2D2D30', border: `1px solid ${VS.border}`,
+        borderRadius: 5, boxShadow: '0 8px 30px rgba(0,0,0,0.55)', padding: '4px 0', zIndex: 9999,
+      }}
+    >
+      {items.map((item, i) =>
+        item.separator ? (
+          <div key={`sep-${i}`} style={{ height: 1, background: VS.border, margin: '4px 0' }} />
+        ) : (
+          <button
+            key={item.label}
+            onClick={() => { if (item.action && !item.disabled) { item.action(); onClose(); } }}
+            onMouseEnter={() => setSelIdx(i)}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '5px 12px 5px 14px', background: i === selIdx ? VS.hoverStrong : 'transparent',
+              border: 'none', cursor: item.disabled ? 'default' : 'pointer', textAlign: 'left',
+              color: item.disabled ? VS.textMuted : VS.textPrimary, fontSize: 12,
+              opacity: item.disabled ? 0.5 : 1, transition: 'background 0.08s',
+            }}
+          >
+            {item.icon && <item.icon style={{ width: 14, height: 14, color: VS.textMuted, flexShrink: 0 }} />}
+            {!item.icon && <span style={{ width: 14 }} />}
+            <span style={{ flex: 1 }}>{item.label}</span>
+            {item.shortcut && (
+              <span style={{ fontSize: 11, color: VS.textMuted, fontFamily: "'JetBrains Mono', Consolas, monospace" }}>{item.shortcut}</span>
+            )}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // FILE ICON BADGE
 // ═════════════════════════════════════════════════════════════════════════════
 function FileIconBadge({ name, size = 16 }: { name: string; size?: number }) {
@@ -301,6 +376,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [hoveredFile, setHoveredFile]     = useState<string | null>(null);
   const [searchQuery, setSearchQuery]     = useState('');
+  const [activeMenu, setActiveMenu]       = useState<string | null>(null);
+  const menuBarRef = useRef<HTMLDivElement>(null);
   const zenKeyRef = useRef(false);
 
   // ── Stores ──────────────────────────────────────────────────────────────────
@@ -342,6 +419,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       if (e.key === 'Escape' && zenMode) { setZenMode(false); return; }
       // Close Command Palette
       if (e.key === 'Escape' && cmdOpen)  { setCmdOpen(false); return; }
+      // Close active menu
+      if (e.key === 'Escape' && activeMenu) { setActiveMenu(null); return; }
       // Ctrl+W → Close active tab
       if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
         if (activeFile && files.length > 1) {
@@ -358,7 +437,19 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp); };
-  }, [zenMode, cmdOpen, activeFile, files]);
+  }, [zenMode, cmdOpen, activeMenu, activeFile, files]);
+
+  // ── Click-outside handler for menus ─────────────────────────────────────────
+  useEffect(() => {
+    if (!activeMenu) return;
+    function handleClick(e: MouseEvent) {
+      if (menuBarRef.current && !menuBarRef.current.contains(e.target as Node)) {
+        setActiveMenu(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [activeMenu]);
 
   // ── Auto-scroll chat ────────────────────────────────────────────────────────
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -533,6 +624,68 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     { label: 'Toggle Collaborators',  icon: Users,          desc: '',            action: () => toggleActivitySection('collab') },
   ], [theme, activeSection, sidebarOpen]);
 
+  // ── Menu bar items ────────────────────────────────────────────────────────
+  function closeMenu() { setActiveMenu(null); }
+
+  const fileMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'New File', shortcut: 'Ctrl+N', action: () => { setIsCreatingFile(true); setSidebarOpen(true); setActiveSection('explorer'); }, icon: FilePlus },
+    { label: 'Close Tab', shortcut: 'Ctrl+W', action: () => { if (activeFile && files.length > 1) { deleteFile(activeFile.id); getSocket().emit(SOCKET_EVENTS.FILE_DELETE, { fileId: activeFile.id }); } }, disabled: !activeFile || files.length <= 1, icon: X },
+    { separator: true, label: '' },
+    { label: 'Rename File', shortcut: 'F2', action: () => { setActiveSection('explorer'); setSidebarOpen(true); }, icon: Edit2, disabled: !activeFile },
+    { label: 'Duplicate File', shortcut: '', action: () => { if (activeFile) explorerDuplicateFile(activeFile); }, disabled: !activeFile, icon: Copy },
+    { separator: true, label: '' },
+    { label: 'Invite to Room', shortcut: '', action: copyRoomCode, icon: UserPlus },
+    { label: 'Copy Room Code', shortcut: '', action: copyRoomCode, icon: Hash },
+  ], [activeFile, files]);
+
+  const editMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'Undo', shortcut: 'Ctrl+Z', action: () => { document.execCommand('undo'); }, icon: RotateCcw },
+    { label: 'Redo', shortcut: 'Ctrl+Shift+Z', action: () => { document.execCommand('redo'); }, icon: RotateCw },
+    { separator: true, label: '' },
+    { label: 'Find', shortcut: 'Ctrl+F', action: () => { setActiveSection('search'); setSidebarOpen(true); }, icon: Search },
+    { label: 'Find in Files', shortcut: 'Ctrl+Shift+F', action: () => { setActiveSection('search'); setSidebarOpen(true); }, icon: FileText },
+  ], []);
+
+  const viewMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'Explorer', shortcut: 'Ctrl+B', action: () => toggleActivitySection('explorer'), icon: Files, disabled: zenMode },
+    { label: 'Search', shortcut: 'Ctrl+Shift+F', action: () => toggleActivitySection('search'), icon: Search, disabled: zenMode },
+    { label: 'Collaborators', shortcut: '', action: () => toggleActivitySection('collab'), icon: Users, disabled: zenMode },
+    { separator: true, label: '' },
+    { label: bottomOpen ? 'Hide Panel' : 'Show Panel', shortcut: 'Ctrl+J', action: () => setBottomOpen(v => !v), icon: PanelBottom },
+    { label: rightPanelOpen ? 'Hide Chat' : 'Show Chat', shortcut: '', action: () => setRightPanelOpen(v => !v), icon: MessageSquare },
+    { separator: true, label: '' },
+    { label: zenMode ? 'Exit Zen Mode' : 'Zen Mode', shortcut: 'Ctrl+K Z', action: () => setZenMode(v => !v), icon: zenMode ? Minimize2 : Maximize2 },
+    { label: theme === 'vs-dark' ? 'Light Theme' : 'Dark Theme', shortcut: '', action: () => setTheme(theme === 'vs-dark' ? 'light' : 'vs-dark'), icon: theme === 'vs-dark' ? Sun : Moon },
+  ], [zenMode, bottomOpen, rightPanelOpen, theme]);
+
+  const goMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'Go to Line', shortcut: 'Ctrl+G', action: () => { /* Monaco go to line */ }, icon: ArrowUp },
+    { label: 'Go to File', shortcut: 'Ctrl+P', action: () => { setCmdOpen(true); }, icon: FileText },
+    { label: 'Go to Symbol', shortcut: 'Ctrl+Shift+O', action: () => { setCmdOpen(true); }, icon: Hash },
+  ], []);
+
+  const runMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'Run Code', shortcut: 'Ctrl+Enter', action: runCode, icon: Play, disabled: isRunning || !activeFile },
+    { label: 'Stop', shortcut: '', action: () => { setRunning(false); }, icon: Square, disabled: !isRunning },
+    { separator: true, label: '' },
+    { label: 'Clear Output', shortcut: '', action: clearResult, icon: Trash2, disabled: !result },
+  ], [isRunning, activeFile, result]);
+
+  const terminalMenuItems: MenuItem[] = useMemo(() => [
+    { label: bottomOpen ? 'Hide Panel' : 'Show Terminal', shortcut: 'Ctrl+J', action: () => setBottomOpen(v => !v), icon: PanelBottom },
+    { label: 'Clear Terminal', shortcut: '', action: clearResult, icon: Trash2, disabled: !result },
+    { separator: true, label: '' },
+    { label: 'Output', shortcut: '', action: () => { setBottomOpen(true); setConsoleTab('output'); }, icon: Terminal },
+    { label: 'Problems', shortcut: '', action: () => { setBottomOpen(true); setConsoleTab('problems'); }, icon: AlertCircle },
+  ], [bottomOpen, result]);
+
+  const helpMenuItems: MenuItem[] = useMemo(() => [
+    { label: 'Command Palette', shortcut: 'Ctrl+Shift+P', action: () => setCmdOpen(true), icon: Command },
+    { label: 'Keyboard Shortcuts', shortcut: '', action: () => setCmdOpen(true), icon: Keyboard },
+    { separator: true, label: '' },
+    { label: 'About CollabCode', shortcut: '', action: () => {}, icon: Code2 },
+  ], []);
+
   // ── Activity Bar icons ────────────────────────────────────────────────────
   const ACT_ITEMS: { icon: any; section: ActivitySection; label: string }[] = [
     { icon: Files,        section: 'explorer',   label: 'Explorer (Ctrl+Shift+E)' },
@@ -566,14 +719,33 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
             <span style={{ fontWeight: 700, fontSize: 12, color: VS.textPrimary, letterSpacing: '-0.2px' }}>CollabCode</span>
           </Link>
 
-          {/* Fake menu bar */}
-          <div style={{ display: 'flex', gap: 1 }}>
-            {['File','Edit','View','Go','Run','Terminal','Help'].map(m => (
-              <button key={m} style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', color: VS.textSecondary, fontSize: 12, borderRadius: 3 }}
-                onMouseEnter={e => (e.currentTarget.style.background = VS.hover)}
-                onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
-                {m}
-              </button>
+          {/* Menu bar */}
+          <div ref={menuBarRef} style={{ display: 'flex', gap: 0, position: 'relative' }}>
+            {([
+              { key: 'file', label: 'File', items: fileMenuItems },
+              { key: 'edit', label: 'Edit', items: editMenuItems },
+              { key: 'view', label: 'View', items: viewMenuItems },
+              { key: 'go', label: 'Go', items: goMenuItems },
+              { key: 'run', label: 'Run', items: runMenuItems },
+              { key: 'terminal', label: 'Terminal', items: terminalMenuItems },
+              { key: 'help', label: 'Help', items: helpMenuItems },
+            ] as const).map(menu => (
+              <div key={menu.key} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setActiveMenu(activeMenu === menu.key ? null : menu.key)}
+                  onMouseEnter={() => { if (activeMenu && activeMenu !== menu.key) setActiveMenu(menu.key); }}
+                  style={{
+                    padding: '3px 8px', background: activeMenu === menu.key ? VS.hoverStrong : 'none',
+                    border: 'none', cursor: 'pointer', color: VS.textSecondary, fontSize: 12, borderRadius: 3,
+                    transition: 'background 0.08s',
+                  }}
+                >
+                  {menu.label}
+                </button>
+                {activeMenu === menu.key && (
+                  <MenuBarDropdown items={menu.items} onClose={closeMenu} />
+                )}
+              </div>
             ))}
           </div>
 
