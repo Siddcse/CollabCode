@@ -386,8 +386,21 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const { messages, typingUsers, addMessage, setTyping } = useChatStore();
   const { isRunning, result, setResult, setRunning, clearResult } = useExecutionStore();
   const [consoleTab, setConsoleTab] = useState<'output'|'terminal'|'problems'>('output');
+  const [termLines, setTermLines] = useState<{type:'cmd'|'out'|'err'; text:string}[]>([]);
+  const [termInput, setTermInput] = useState('');
+  const [termHistory, setTermHistory] = useState<string[]>([]);
+  const [histIdx, setHistIdx] = useState(-1);
+  const termRef = useRef<HTMLDivElement>(null);
+  const termInputRef = useRef<HTMLInputElement>(null);
 
   const activeFile = files.find(f => f.id === activeFileId);
+
+  // Auto-scroll terminal to bottom
+  useEffect(() => {
+    if (termRef.current) {
+      termRef.current.scrollTop = termRef.current.scrollHeight;
+    }
+  }, [termLines]);
 
   // ── Keyboard shortcuts ───────────────────────────────────────────────────
   useEffect(() => {
@@ -403,6 +416,14 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       // Ctrl+J → Toggle Bottom Panel
       if ((e.ctrlKey || e.metaKey) && e.key === 'j') {
         e.preventDefault(); setBottomOpen(v => !v); return;
+      }
+      // Ctrl+` → Toggle Terminal
+      if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+        e.preventDefault();
+        setBottomOpen(true);
+        setConsoleTab('terminal');
+        setTimeout(() => termInputRef.current?.focus(), 50);
+        return;
       }
       // Ctrl+N → New File
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -482,6 +503,16 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     socket.on(SOCKET_EVENTS.CHAT_UPDATE, (msg: any) => addMessage(msg));
     socket.on(SOCKET_EVENTS.TYPING_STATUS, ({ userId, username, isTyping }: any) => { if (userId !== user.id) setTyping(userId, username, isTyping); });
     socket.on(SOCKET_EVENTS.EXECUTION_RESULT, (res: any) => { setResult(res); setRunning(false); setBottomOpen(true); setConsoleTab('output'); });
+    socket.on(SOCKET_EVENTS.COMMAND_RESULT, (res: { output: string; error: string; exitCode: number }) => {
+      setTermLines(prev => {
+        const next = [...prev];
+        if (res.output) next.push({ type: 'out', text: res.output });
+        if (res.error) next.push({ type: 'err', text: res.error });
+        if (res.output || res.error) next.push({ type: 'out', text: '' });
+        return next;
+      });
+      setConsoleTab('terminal');
+    });
 
     roomApi.get(roomCode).then((room: any) => {
       if (room?.files?.length) setFiles(room.files.map((f: any) => ({ id: f.id, name: f.name, content: f.content ?? '', language: f.language })));
@@ -499,6 +530,16 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     if (!activeFile || isRunning) return;
     setRunning(true);
     getSocket().emit(SOCKET_EVENTS.RUN_CODE, { language, code: activeFile.content, fileId: activeFile.id });
+  }
+
+  function sendCommand() {
+    const cmd = termInput.trim();
+    if (!cmd) return;
+    setTermLines(prev => [...prev, { type: 'cmd', text: cmd }]);
+    setTermHistory(prev => [cmd, ...prev].slice(0, 50));
+    setHistIdx(-1);
+    setTermInput('');
+    getSocket().emit(SOCKET_EVENTS.RUN_COMMAND, { command: cmd });
   }
   function copyRoomCode() {
     navigator.clipboard.writeText(roomCode);
@@ -1159,8 +1200,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                 </div>
                 <div style={{ flex: 1 }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '0 8px' }}>
-                  {result && (
-                    <button onClick={clearResult}
+                  {(result || (consoleTab === 'terminal' && termLines.length > 0)) && (
+                    <button onClick={() => { if (consoleTab === 'terminal') setTermLines([]); else clearResult(); }}
                       style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', background: 'none', border: 'none', cursor: 'pointer', color: VS.textMuted, fontSize: 12, borderRadius: 3 }}
                       onMouseEnter={e => (e.currentTarget.style.background = VS.hover)}
                       onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
@@ -1208,7 +1249,68 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                     )}
                   </>
                 )}
-                {consoleTab === 'terminal' && <div style={{ color: VS.textMuted }}><span style={{ color: VS.green }}>$</span> Interactive terminal — coming soon</div>}
+                {consoleTab === 'terminal' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+                    onClick={() => termInputRef.current?.focus()}>
+                    <div ref={termRef} style={{ flex: 1, overflowY: 'auto', paddingBottom: 4 }}>
+                      {termLines.length === 0 && (
+                        <div style={{ color: VS.textMuted }}>
+                          <span style={{ color: VS.green }}>$</span> Type a command and press Enter
+                        </div>
+                      )}
+                      {termLines.map((line, i) => (
+                        <div key={i} style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                          {line.type === 'cmd' && (
+                            <div><span style={{ color: VS.green }}>$ </span><span style={{ color: '#D4D4D4' }}>{line.text}</span></div>
+                          )}
+                          {line.type === 'out' && <span style={{ color: '#D4D4D4' }}>{line.text}</span>}
+                          {line.type === 'err' && <span style={{ color: VS.red }}>{line.text}</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, borderTop: `1px solid ${VS.border}`, paddingTop: 4 }}>
+                      <span style={{ color: VS.green, fontFamily: 'Consolas, "Courier New", monospace', fontSize: 13, marginRight: 2 }}>$</span>
+                      <input
+                        ref={termInputRef}
+                        value={termInput}
+                        onChange={e => { setTermInput(e.target.value); setHistIdx(-1); }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') { e.preventDefault(); sendCommand(); }
+                          if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (termHistory.length > 0) {
+                              const next = Math.min(histIdx + 1, termHistory.length - 1);
+                              setHistIdx(next);
+                              setTermInput(termHistory[next]);
+                            }
+                          }
+                          if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (histIdx > 0) {
+                              const next = histIdx - 1;
+                              setHistIdx(next);
+                              setTermInput(termHistory[next]);
+                            } else {
+                              setHistIdx(-1);
+                              setTermInput('');
+                            }
+                          }
+                          if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
+                            e.preventDefault();
+                            setTermLines([]);
+                          }
+                        }}
+                        placeholder="Enter command…"
+                        style={{
+                          flex: 1, background: 'none', border: 'none', outline: 'none',
+                          color: '#D4D4D4', fontFamily: 'Consolas, "Courier New", monospace', fontSize: 13,
+                          caretColor: VS.green,
+                        }}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                )}
                 {consoleTab === 'problems' && (
                   result?.exitCode !== 0 && result?.error
                     ? <div style={{ color: VS.red, display: 'flex', gap: 8 }}><AlertCircle style={{ width: 13, height: 13, marginTop: 2, flexShrink: 0 }} /><pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{result.error}</pre></div>

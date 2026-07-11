@@ -271,3 +271,130 @@ export async function checkDockerHealth(): Promise<boolean> {
     return false;
   }
 }
+
+// ── Run arbitrary shell command (for interactive terminal) ───────────────────
+export interface CommandResult {
+  output: string;
+  error: string;
+  exitCode: number;
+}
+
+export async function runCommand(
+  command: string,
+  cwd?: string,
+): Promise<CommandResult> {
+  const dockerHealthy = await checkDockerHealth();
+  if (dockerHealthy) {
+    return runCommandInDocker(command);
+  }
+  return runCommandLocally(command, cwd);
+}
+
+async function runCommandInDocker(command: string): Promise<CommandResult> {
+  const start = Date.now();
+  const tmpDir = path.join(os.tmpdir(), `collabcmd-${uuidv4()}`);
+  let container: Docker.Container | null = null;
+
+  try {
+    await fs.mkdir(tmpDir, { recursive: true });
+
+    // Create a shell script to run the command
+    const scriptPath = path.join(tmpDir, 'run.sh');
+    await fs.writeFile(scriptPath, `#!/bin/sh\n${command}`, 'utf8');
+
+    const bindPath = tmpDir.replace(/\\/g, '/');
+
+    container = await docker.createContainer({
+      Image: 'node:22-alpine',
+      Cmd: ['sh', '/code/run.sh'],
+      WorkingDir: '/code',
+      NetworkDisabled: true,
+      HostConfig: {
+        Binds: [`${bindPath}:/code:ro`],
+        Memory: env.EXECUTION_MEMORY_LIMIT,
+        CpuQuota: env.EXECUTION_CPU_QUOTA,
+        AutoRemove: false,
+        Tmpfs: { '/tmp': 'size=64m' },
+        CapDrop: ['ALL'],
+        SecurityOpt: ['no-new-privileges'],
+      },
+    });
+
+    await container.start();
+
+    const timeoutHandle = setTimeout(async () => {
+      try { await container?.stop({ t: 0 }); } catch {}
+    }, env.EXECUTION_TIMEOUT_MS);
+
+    const exitData = await container.wait();
+    clearTimeout(timeoutHandle);
+
+    const logs = await container.logs({ stdout: true, stderr: true, follow: false });
+    const { stdout, stderr } = parseLogs(logs as unknown as Buffer);
+
+    return {
+      output: stdout,
+      error: stderr,
+      exitCode: exitData.StatusCode,
+    };
+  } finally {
+    if (container) {
+      try { await container.remove({ force: true }); } catch {}
+    }
+    try { await fs.rm(tmpDir, { recursive: true, force: true }); } catch {}
+  }
+}
+
+async function runCommandLocally(command: string, cwd?: string): Promise<CommandResult> {
+  const start = Date.now();
+  const { spawn } = await import('child_process');
+
+  return new Promise<CommandResult>((resolve) => {
+    let stdout = '';
+    let stderr = '';
+    let killed = false;
+
+    const shell = process.platform === 'win32' ? 'cmd' : 'sh';
+    const shellArgs = process.platform === 'win32' ? ['/c', command] : ['-c', command];
+
+    const proc = spawn(shell, shellArgs, {
+      cwd: cwd || os.homedir(),
+      env: { ...process.env, FORCE_COLOR: '0' },
+      timeout: env.EXECUTION_TIMEOUT_MS,
+    });
+
+    const timer = setTimeout(() => {
+      killed = true;
+      proc.kill('SIGKILL');
+    }, env.EXECUTION_TIMEOUT_MS);
+
+    proc.stdout?.on('data', (data: Buffer) => { stdout += data.toString(); });
+    proc.stderr?.on('data', (data: Buffer) => { stderr += data.toString(); });
+
+    proc.on('close', (code) => {
+      clearTimeout(timer);
+      if (killed && !stdout && !stderr) {
+        resolve({
+          output: '',
+          error: `Command timed out after ${env.EXECUTION_TIMEOUT_MS / 1000}s`,
+          exitCode: -1,
+        });
+      } else {
+        resolve({
+          output: stdout,
+          error: stderr,
+          exitCode: code ?? -1,
+        });
+      }
+    });
+
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      resolve({
+        output: '',
+        error: err.message,
+        exitCode: -1,
+      });
+    });
+  });
+}
