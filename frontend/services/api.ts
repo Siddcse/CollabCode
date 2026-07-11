@@ -1,7 +1,19 @@
 import axios from 'axios';
 
+const getBackendUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') return `${window.location.origin}/api`;
+  return 'http://localhost:4000/api';
+};
+
+export function getWsUrl() {
+  if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
+  if (typeof window !== 'undefined') return window.location.origin;
+  return 'http://localhost:4000';
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api',
+  baseURL: getBackendUrl(),
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });
