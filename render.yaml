@@ -17,6 +17,6 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ORIGIN
-        value: https://collab-code-frontend.vercel.app
+        value: https://collab-code-frontend-seven.vercel.app
       - key: DOCKER_SOCKET_PATH
         value: /var/run/docker.sock

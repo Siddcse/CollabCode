@@ -3,8 +3,8 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(process.env.PORT ? parseInt(process.env.PORT) : 4000),
-  MONGODB_URI: z.string().min(1),
-  REDIS_URL: z.string().min(1),
+  MONGODB_URI: z.string().min(1).optional(),
+  REDIS_URL: z.string().min(1).optional(),
   JWT_SECRET: z.string().min(1),
   JWT_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('*'),

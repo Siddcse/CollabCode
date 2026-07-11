@@ -8,6 +8,11 @@ export function isDBConnected(): boolean {
 }
 
 export async function connectDB(): Promise<void> {
+  if (!env.MONGODB_URI) {
+    console.warn('⚠️  MONGODB_URI not configured — running in memory-only mode');
+    return;
+  }
+
   const MAX_RETRIES = 5;
   const RETRY_DELAY_MS = 3000;
 

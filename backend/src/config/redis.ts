@@ -13,8 +13,14 @@ export function getRedis(): Redis | null {
 }
 
 export async function connectRedis(): Promise<void> {
+  const redisUrl = env.REDIS_URL;
+  if (!redisUrl) {
+    console.warn('⚠️  REDIS_URL not configured — continuing without cache');
+    return;
+  }
+
   return new Promise((resolve, reject) => {
-    const client = new Redis(env.REDIS_URL, {
+    const client = new Redis(redisUrl, {
       lazyConnect: true,
       enableOfflineQueue: false,
       // Stop retrying after first failure in dev
