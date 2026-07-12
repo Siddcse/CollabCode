@@ -1,10 +1,9 @@
 services:
   - type: web
     name: collabcode-backend
-    runtime: node
+    runtime: docker
     rootDir: .
-    buildCommand: npm install && npm run build
-    startCommand: npm start --workspace=backend
+    dockerfilePath: backend/Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,5 +17,3 @@ services:
         sync: false
       - key: CORS_ORIGIN
         value: https://collab-code-frontend-seven.vercel.app
-      - key: DOCKER_SOCKET_PATH
-        value: /var/run/docker.sock
