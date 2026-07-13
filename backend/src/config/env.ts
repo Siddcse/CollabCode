@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z.preprocess(
+    (v) => (v === '' || v === undefined || v === null ? 'development' : v),
+    z.enum(['development', 'production', 'test']),
+  ),
   PORT: z.coerce.number().default(4000),
   MONGODB_URI: z.string().min(1).optional(),
   REDIS_URL: z.string().min(1).optional(),
