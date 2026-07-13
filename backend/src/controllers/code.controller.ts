@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { runCode, checkDockerHealth } from '../services/docker.service';
+import { runCode } from '../services/docker.service';
 import { ExecutionLog } from '../models/ExecutionLog';
 
 const runCodeSchema = z.object({
@@ -16,20 +16,11 @@ export async function handleRunCode(req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const healthy = await checkDockerHealth();
-  if (!healthy) {
-    res.status(503).json({
-      success: false,
-      error: 'Code execution service unavailable. Docker is not running.',
-    });
-    return;
-  }
-
   const { roomId, language, code } = parsed.data;
 
   const result = await runCode(language, code);
 
-  await ExecutionLog.create({ roomId, language, code, ...result });
+  ExecutionLog.create({ roomId, language, code, ...result }).catch(() => {});
 
   res.json({ success: true, data: result });
 }

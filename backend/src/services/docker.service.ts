@@ -65,32 +65,32 @@ const FILE_NAMES: Record<SupportedLanguage, string> = {
 // Maps language → [executable, ...args] using host-installed runtimes
 const LOCAL_COMMANDS: Record<SupportedLanguage, (dir: string, file: string) => { cmd: string; args: string[]; shell?: boolean }> = {
   javascript: (_, f) => ({ cmd: 'node', args: [f] }),
-  typescript: (_, f) => ({ cmd: 'node', args: ['--loader', 'ts-node/esm', f] }),
+  typescript: (_, f) => ({ cmd: 'node', args: ['--experimental-strip-types', f] }),
   python:     (_, f) => ({ cmd: isWindows ? 'python' : 'python3', args: [f] }),
-  java:       (dir, _) => ({
+  java:       (_dir, _f) => ({
     cmd: isWindows ? 'cmd' : 'sh',
     args: isWindows
-      ? ['/c', `cd /d "${dir}" && javac Main.java && java Main`]
-      : ['-c', `cd "${dir}" && javac Main.java && java Main`],
+      ? ['/c', 'javac Main.java && java Main']
+      : ['-c', 'javac Main.java && java Main'],
   }),
-  c: (dir, _) => ({
+  c: (_dir, _f) => ({
     cmd: isWindows ? 'cmd' : 'sh',
     args: isWindows
-      ? ['/c', `cd /d "${dir}" && gcc -o prog main.c && prog.exe`]
-      : ['-c', `cd "${dir}" && gcc -o prog main.c && ./prog`],
+      ? ['/c', 'gcc -o prog main.c && prog']
+      : ['-c', 'gcc -o prog main.c && ./prog'],
   }),
-  cpp: (dir, _) => ({
+  cpp: (_dir, _f) => ({
     cmd: isWindows ? 'cmd' : 'sh',
     args: isWindows
-      ? ['/c', `cd /d "${dir}" && g++ -o prog main.cpp && prog.exe`]
-      : ['-c', `cd "${dir}" && g++ -o prog main.cpp && ./prog`],
+      ? ['/c', 'g++ -o prog main.cpp && prog']
+      : ['-c', 'g++ -o prog main.cpp && ./prog'],
   }),
   go:   (_, f) => ({ cmd: 'go', args: ['run', f] }),
-  rust: (dir, _) => ({
+  rust: (_dir, _f) => ({
     cmd: isWindows ? 'cmd' : 'sh',
     args: isWindows
-      ? ['/c', `cd /d "${dir}" && rustc -o prog main.rs && prog.exe`]
-      : ['-c', `cd "${dir}" && rustc -o prog main.rs && ./prog`],
+      ? ['/c', 'rustc -o prog main.rs && prog']
+      : ['-c', 'rustc -o prog main.rs && ./prog'],
   }),
 };
 

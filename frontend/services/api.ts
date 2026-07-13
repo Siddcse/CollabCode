@@ -1,26 +1,13 @@
 import axios from 'axios';
 
-const LOCAL_HOST_PATTERNS = ['localhost', '127.0.0.1', '[::1]'];
-const DEFAULT_BACKEND_URL = 'https://collabcode-backend.onrender.com/api';
-const DEFAULT_WS_URL = 'https://collabcode-backend.onrender.com';
-
-const isLocalOrigin = (origin: string) =>
-  LOCAL_HOST_PATTERNS.some((host) => origin.includes(host));
-
 const getBackendUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== 'undefined' && isLocalOrigin(window.location.origin)) {
-    return `${window.location.origin}/api`;
-  }
-  return DEFAULT_BACKEND_URL;
+  return 'http://localhost:4000/api';
 };
 
 export function getWsUrl() {
   if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
-  if (typeof window !== 'undefined' && isLocalOrigin(window.location.origin)) {
-    return window.location.origin;
-  }
-  return DEFAULT_WS_URL;
+  return 'http://localhost:4000';
 }
 
 const api = axios.create({

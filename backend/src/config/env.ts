@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().default(process.env.PORT ? parseInt(process.env.PORT) : 4000),
+  PORT: z.coerce.number().default(4000),
   MONGODB_URI: z.string().min(1).optional(),
   REDIS_URL: z.string().min(1).optional(),
-  JWT_SECRET: z.string().min(1),
+  JWT_SECRET: z.string().min(1).default('dev-secret-do-not-use-in-production'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('*'),
   DOCKER_SOCKET_PATH: z.string().optional(),
@@ -28,6 +28,9 @@ export function getEnv(): Env {
       process.exit(1);
     }
     _env = parsed.data;
+    if (_env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+      console.warn('⚠️  WARNING: Using default JWT_SECRET in production! Set JWT_SECRET environment variable.');
+    }
   }
   return _env;
 }
