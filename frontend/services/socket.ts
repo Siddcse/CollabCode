@@ -4,9 +4,15 @@ import { io, type Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
 
+const LOCAL = ['localhost', '127.0.0.1', '[::1]'];
+const RAILWAY_URL = 'https://web-production-8d98a.up.railway.app';
+
 const getSocketUrl = () => {
   if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
-  return 'http://localhost:4000';
+  if (typeof window !== 'undefined' && LOCAL.some((h) => window.location.origin.includes(h))) {
+    return 'http://localhost:4000';
+  }
+  return RAILWAY_URL;
 };
 
 export function getSocket(): Socket {

@@ -1,13 +1,21 @@
 import axios from 'axios';
 
+const LOCAL = ['localhost', '127.0.0.1', '[::1]'];
+const RAILWAY_URL = 'https://web-production-8d98a.up.railway.app';
+
+const isLocal = () =>
+  typeof window !== 'undefined' && LOCAL.some((h) => window.location.origin.includes(h));
+
 const getBackendUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return 'http://localhost:4000/api';
+  if (isLocal()) return 'http://localhost:4000/api';
+  return `${RAILWAY_URL}/api`;
 };
 
 export function getWsUrl() {
   if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL;
-  return 'http://localhost:4000';
+  if (isLocal()) return 'http://localhost:4000';
+  return RAILWAY_URL;
 }
 
 const api = axios.create({
